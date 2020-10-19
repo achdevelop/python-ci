@@ -6,9 +6,7 @@ jobs:
       - image: circleci/python:3.6.4 
     steps:
       - checkout  # checkout source code to working directory
-      - python/load-cache
       - python/install-deps
-      - python/save-cache
       - run:
           command: |  # use pipenv to install dependencies
             sudo pip install pipenv
