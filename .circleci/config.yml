@@ -6,12 +6,19 @@ jobs:
       - image: circleci/python:3.6.4 
     steps:
       - checkout  # checkout source code to working directory
-      - python/install-deps
       - run:
           command: |  # use pipenv to install dependencies
             sudo pip install pipenv
             pipenv install
           name: Install PyEnv
+      - run:
+          command: |
+            if true; then
+              pip install --user -r requirements.txt
+            else
+              pip install -r requirements.txt
+            fi
+          name: Install dependencies 
       - run:
           command: |
             nosetests tests/math-test.py
