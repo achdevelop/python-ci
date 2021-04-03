@@ -68,8 +68,9 @@ jobs:
           name: Docker Push
           command: |
             echo -e "\nPushing image $IMAGE_NAME with TAG: ${TAG}"
-            docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest
             docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}:${TAG}
+            echo -e "\nPushing image $IMAGE_NAME with latest tag"
+            docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}
 workflows:
   install-dependencies:
     jobs:
