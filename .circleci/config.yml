@@ -39,10 +39,10 @@ jobs:
     steps:
     executor: python-executor
     steps:
-     - run:
+      - run:
           name: Docker login
           command: cat $GITHUB_TOKEN | docker login ${REGISTRY} -u $GITHUB_USER --password-stdin
-     - run:
+      - run:
           name: Docker Tag
           command: |
             echo -e "\nTagging image $IMAGE_NAME with TAG: $TAG"
