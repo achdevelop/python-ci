@@ -5,6 +5,7 @@ executors:
       IMAGE_NAME: python-ci/develop
       GITHUB_REGISTRY: docker.pkg.github.com/achgeek
       REGISTRY: https://docker.pkg.github.com
+      BUILD_NUMBER: <<pipeline.number>>
     docker:
       - image: circleci/python:3.6.4
 jobs:
@@ -37,6 +38,7 @@ jobs:
           command: |
             echo -e "\nImage to build:  ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest"
             docker build -t ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest .
+            docker save -o image.tar ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest
       - persist_to_workspace:
           name: Persist Image
           root: .
@@ -58,8 +60,9 @@ jobs:
       - run:
           name: Docker Tag
           command: |
-            TAG="v1.0.$BUILD_NUMBER"
+            TAG="v1.0.${BUILD_NUMBER}"
             echo -e "\nTagging image $IMAGE_NAME with TAG: $TAG"
+            docker load -i image.tar
             docker tag  ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest ${GITHUB_REGISTRY}/${IMAGE_NAME}:$TAG
       - run:
           name: Docker Push
