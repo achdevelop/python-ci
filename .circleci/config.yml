@@ -74,9 +74,13 @@ workflows:
             branches:
               only:
                 - develop
+          requires:
+           - Install dependencies
       - publish:
           name: Push Image
           filters:
             branches:
               only:
                 - develop
+          requires:
+            - Build Image
