@@ -46,6 +46,7 @@ jobs:
     working_directory: ~/python-ci
     executor: python-executor
     steps:
+      - setup_remote_docker
       - run:
           name: Docker login
           command: |
