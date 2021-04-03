@@ -33,6 +33,11 @@ jobs:
       - run:
           name: Docker Build
           command: docker build -t ${ENTERPRISE_NAME}-${GROUP_NAME}/${SERVICE_NAME}:latest .
+      - persist_to_workspace:
+          name: Persist Image
+          root: .
+          paths:
+            - ./artifacts
   publish:
     working_directory: ~/python-ci
     executor: python-executor
@@ -40,6 +45,9 @@ jobs:
       - run:
           name: Docker login
           command: cat $GITHUB_TOKEN | docker login ${REGISTRY} -u $GITHUB_USER --password-stdin
+      - attach_workspace:
+          name: Attach Image
+          at: .
       - run:
           name: Docker Tag
           command: |
@@ -65,10 +73,10 @@ workflows:
           filters:
             branches:
               only:
-                - main
+                - develop
       - publish:
           name: Push Image
           filters:
             branches:
               only:
-                - main
+                - develop
