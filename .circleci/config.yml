@@ -1,9 +1,16 @@
 version: 2.1
-jobs:
-  build:
-    working_directory: ~/python-ci
+executors:
+  python-executor:
+    environment:
+      IMAGE_NAME: python-ci/develop
+      GITHUB_REGISTRY: docker.pkg.github.com/achgeek
+      REGISTRY: https://docker.pkg.github.com
     docker:
-      - image: circleci/python:3.6.4 
+      - image: circleci/python:3.6.4
+jobs:
+  dependencies:
+    working_directory: ~/python-ci
+    executor: python-executor
     steps:
       - checkout  # checkout source code to working directory
       - run:
@@ -19,12 +26,51 @@ jobs:
               pip install -r requirements.txt
             fi
           name: Install dependencies 
+  build:
+    working_directory: ~/python-ci
+    steps:
+    executor: python-executor
+    steps:
+      - run:
+          name: Docker Build
+          command: docker build -t ${ENTERPRISE_NAME}-${GROUP_NAME}/${SERVICE_NAME}:latest .
+  publish:
+    working_directory: ~/python-ci
+    steps:
+    executor: python-executor
+    steps:
+     - run:
+          name: Docker login
+          command: cat $GITHUB_TOKEN | docker login ${REGISTRY} -u $GITHUB_USER --password-stdin
+     - run:
+          name: Docker Tag
+          command: |
+            echo -e "\nTagging image $IMAGE_NAME with TAG: $TAG"
+            TAG="v1.0.$BUILD_NUMBER"
+            docker tag  $IMAGE_NAME ${GITHUB_REGISTRY}/${IMAGE_NAME}:$TAG
+      - run:
+          name: Docker Push
+          command: |
+            echo -e "\nPushing image $IMAGE_NAME with TAG: $TAG"
+            docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}:$TAG
 workflows:
   install-dependencies:
     jobs:
-      - build:
+      - dependencies:
           name: Install dependencies
           filters:
             branches:
               only:
                 - develop
+      - build:
+        name: Build Image
+          filters:
+            branches:
+              only:
+                - main
+      - publish:
+        name: Push Image
+          filters:
+            branches:
+              only:
+                - main
