@@ -63,13 +63,13 @@ workflows:
               only:
                 - develop
       - build:
-        name: Build Image
+          name: Build Image
           filters:
             branches:
               only:
                 - main
       - publish:
-        name: Push Image
+          name: Push Image
           filters:
             branches:
               only:
