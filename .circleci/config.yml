@@ -5,7 +5,7 @@ executors:
       IMAGE_NAME: python-ci/develop
       GITHUB_REGISTRY: docker.pkg.github.com/achgeek
       REGISTRY: https://docker.pkg.github.com
-      BUILD_NUMBER: <<pipeline.number>>
+      TAG: <<pipeline.number>>
     docker:
       - image: circleci/python:3.6.4
 jobs:
@@ -60,17 +60,16 @@ jobs:
       - run:
           name: Docker Tag
           command: |
-            TAG="v1.0.${BUILD_NUMBER}"
             docker load -i image.tar
             docker images
-            echo -e "\nTagging image ${GITHUB_REGISTRY}/${IMAGE_NAME} with TAG: $TAG"
-            docker tag  ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest ${GITHUB_REGISTRY}/${IMAGE_NAME}:$TAG
+            echo -e "\nTagging image ${GITHUB_REGISTRY}/${IMAGE_NAME} with TAG: ${TAG}"
+            docker tag  ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest ${GITHUB_REGISTRY}/${IMAGE_NAME}:${TAG}
       - run:
           name: Docker Push
           command: |
-            echo -e "\nPushing image $IMAGE_NAME with TAG: $TAG"
+            echo -e "\nPushing image $IMAGE_NAME with TAG: ${TAG}"
             docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest
-            docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}:$TAG
+            docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}:${TAG}
 workflows:
   install-dependencies:
     jobs:
