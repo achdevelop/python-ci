@@ -30,6 +30,7 @@ jobs:
     working_directory: ~/python-ci
     executor: python-executor
     steps:
+      - checkout
       - run:
           name: Docker Build
           command: |
