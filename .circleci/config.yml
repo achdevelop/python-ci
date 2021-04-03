@@ -41,7 +41,7 @@ jobs:
           name: Persist Image
           root: .
           paths:
-            - ./artifacts
+            - .
   publish:
     working_directory: ~/python-ci
     executor: python-executor
