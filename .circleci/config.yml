@@ -28,9 +28,11 @@ jobs:
           name: Install dependencies 
   build:
     working_directory: ~/python-ci
-    executor: python-executor
+    #executor: python-executor
     steps:
       - checkout
+      - setup_remote_docker:
+        version: 19.03.13
       - run:
           name: Docker Build
           command: |
