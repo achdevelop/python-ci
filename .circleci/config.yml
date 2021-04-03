@@ -2,10 +2,11 @@ version: 2.1
 executors:
   python-executor:
     environment:
-      IMAGE_NAME: python-ci/develop
+      IMAGE_NAME: python-ci/<<pipeline.git.branch>>
       GITHUB_REGISTRY: docker.pkg.github.com/achgeek
       REGISTRY: https://docker.pkg.github.com
       TAG: <<pipeline.number>>
+      SHORT_GIT_HASH: $(echo $CIRCLE_SHA1 | cut -c -7)
     docker:
       - image: circleci/python:3.6.4
 jobs:
@@ -62,13 +63,13 @@ jobs:
           command: |
             docker load -i image.tar
             docker images
-            echo -e "\nTagging image ${GITHUB_REGISTRY}/${IMAGE_NAME} with TAG: ${TAG}"
-            docker tag  ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest ${GITHUB_REGISTRY}/${IMAGE_NAME}:${TAG}
+            echo -e "\nTagging image ${GITHUB_REGISTRY}/${IMAGE_NAME} with TAG: ${TAG}-${SHORT_GIT_HASH}"
+            docker tag  ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest ${GITHUB_REGISTRY}/${IMAGE_NAME}:${TAG}-${SHORT_GIT_HASH}
       - run:
           name: Docker Push
           command: |
-            echo -e "\nPushing image $IMAGE_NAME with TAG: ${TAG}"
-            docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}:${TAG}
+            echo -e "\nPushing image $IMAGE_NAME with TAG: ${TAG}-${SHORT_GIT_HASH}"
+            docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}:${TAG}-${SHORT_GIT_HASH}
             echo -e "\nPushing image $IMAGE_NAME with latest tag"
             docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}
 workflows:
