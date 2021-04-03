@@ -32,7 +32,7 @@ jobs:
     steps:
       - run:
           name: Docker Build
-          command: docker build -t ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest .
+          command: docker build -t $GITHUB_REGISTRY/$IMAGE_NAME:latest .
       - persist_to_workspace:
           name: Persist Image
           root: .
@@ -44,7 +44,7 @@ jobs:
     steps:
       - run:
           name: Docker login
-          command: cat $GITHUB_TOKEN | docker login ${REGISTRY} -u $GITHUB_USER --password-stdin
+          command: cat $GITHUB_TOKEN | docker login $REGISTRY -u $GITHUB_USER --password-stdin
       - attach_workspace:
           name: Attach Image
           at: .
@@ -53,12 +53,13 @@ jobs:
           command: |
             echo -e "\nTagging image $IMAGE_NAME with TAG: $TAG"
             TAG="v1.0.$BUILD_NUMBER"
-            docker tag  $IMAGE_NAME ${GITHUB_REGISTRY}/${IMAGE_NAME}:$TAG
+            docker tag  $GITHUB_REGISTRY/$IMAGE_NAME:latest $GITHUB_REGISTRY/$IMAGE_NAME:$TAG
       - run:
           name: Docker Push
           command: |
             echo -e "\nPushing image $IMAGE_NAME with TAG: $TAG"
-            docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}:$TAG
+            docker push $GITHUB_REGISTRY/$IMAGE_NAME:$TAG
+            docker push $GITHUB_REGISTRY/$IMAGE_NAME:latest
 workflows:
   install-dependencies:
     jobs:
