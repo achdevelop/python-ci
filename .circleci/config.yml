@@ -51,7 +51,7 @@ jobs:
           name: Docker login
           command: |
             echo -e "\nLogging in registry ${REGISTRY}"
-            cat $GITHUB_TOKEN | docker login ${REGISTRY} -u $GITHUB_USER --password-stdin
+            echo "$GITHUB_TOKEN" | docker login ${REGISTRY} -u $GITHUB_USER --password-stdin
       - attach_workspace:
           name: Attach Image
           at: .
