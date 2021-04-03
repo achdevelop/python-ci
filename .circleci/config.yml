@@ -27,14 +27,14 @@ jobs:
             fi
           name: Install dependencies 
   build:
-    steps:
+    working_directory: ~/python-ci
     executor: python-executor
     steps:
       - run:
           name: Docker Build
           command: docker build -t ${ENTERPRISE_NAME}-${GROUP_NAME}/${SERVICE_NAME}:latest .
   publish:
-    steps:
+    working_directory: ~/python-ci
     executor: python-executor
     steps:
       - run:
