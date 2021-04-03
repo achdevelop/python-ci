@@ -58,14 +58,15 @@ jobs:
       - run:
           name: Docker Tag
           command: |
-            echo -e "\nTagging image $IMAGE_NAME with TAG: $TAG"
             TAG="v1.0.$BUILD_NUMBER"
-            docker tag  $IMAGE_NAME ${GITHUB_REGISTRY}/${IMAGE_NAME}:$TAG
+            echo -e "\nTagging image $IMAGE_NAME with TAG: $TAG"
+            docker tag  ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest ${GITHUB_REGISTRY}/${IMAGE_NAME}:$TAG
       - run:
           name: Docker Push
           command: |
             echo -e "\nPushing image $IMAGE_NAME with TAG: $TAG"
             docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}:$TAG
+            docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest
 workflows:
   install-dependencies:
     jobs:
