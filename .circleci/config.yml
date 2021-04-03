@@ -67,19 +67,23 @@ workflows:
   install-dependencies:
     jobs:
       - dependencies:
-          name: Install dependencies
+          name: Install Dependencies
           filters:
             branches:
               only:
                 - develop
       - build:
           name: Build Image
+          requires:
+            - Install Dependencies
           filters:
             branches:
               only:
                 - develop
       - publish:
           name: Push Image
+          requires:
+            - Build Image
           filters:
             branches:
               only:
