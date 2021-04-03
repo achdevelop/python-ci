@@ -19,4 +19,13 @@ jobs:
               pip install -r requirements.txt
             fi
           name: Install dependencies 
-
+workflows:
+  install-dependencies:
+    jobs:
+      - build:
+          name: Install dependencies
+          filters:
+            branches:
+              only:
+                - main
+                - development
