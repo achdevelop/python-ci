@@ -1,9 +1,18 @@
 version: 2.1
-jobs:
-  build:
-    working_directory: ~/python-ci
+executors:
+  python-executor:
+    environment:
+      IMAGE_NAME: python-ci/<<pipeline.git.branch>>
+      GITHUB_REGISTRY: docker.pkg.github.com/achgeek
+      REGISTRY: https://docker.pkg.github.com
+      TAG: <<pipeline.number>>
+      SHORT_GIT_HASH: $(echo <<pipeline.git.revision>> | cut -c -7)
     docker:
-      - image: circleci/python:3.6.4 
+      - image: circleci/python:3.6.4
+jobs:
+  dependencies:
+    working_directory: ~/python-ci
+    executor: python-executor
     steps:
       - checkout  # checkout source code to working directory
       - run:
@@ -19,11 +28,73 @@ jobs:
               pip install -r requirements.txt
             fi
           name: Install dependencies 
+  build:
+    working_directory: ~/python-ci
+    executor: python-executor
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Docker Build
+          command: |
+            echo -e "\nImage to build:  ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest"
+            docker build -t ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest .
+            docker save -o image.tar ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest
+      - persist_to_workspace:
+          name: Persist Image
+          root: .
+          paths:
+            - .
+  publish:
+    working_directory: ~/python-ci
+    executor: python-executor
+    steps:
+      - setup_remote_docker
+      - run:
+          name: Docker login
+          command: |
+            echo -e "\nLogging in registry ${REGISTRY}"
+            echo "$GITHUB_TOKEN" | docker login ${REGISTRY} -u $GITHUB_USER --password-stdin
+      - attach_workspace:
+          name: Attach Image
+          at: .
+      - run:
+          name: Docker Tag
+          command: |
+            docker load -i image.tar
+            docker images
+            short_git=$(echo <<pipeline.git.revision>> | cut -c -7)
+            echo -e "\nTagging image ${GITHUB_REGISTRY}/${IMAGE_NAME} with TAG: ${TAG}-$short_git"
+            docker tag  ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest ${GITHUB_REGISTRY}/${IMAGE_NAME}:${TAG}-$short_git
+      - run:
+          name: Docker Push
+          command: |
+            short_git=$(echo <<pipeline.git.revision>> | cut -c -7)
+            echo -e "\nPushing image $IMAGE_NAME with TAG: ${TAG}-$short_git"
+            docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}:${TAG}-$short_git
+            echo -e "\nPushing image $IMAGE_NAME with latest tag"
+            docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}
 workflows:
   install-dependencies:
     jobs:
+      - dependencies:
+          name: Install Dependencies
+          filters:
+            branches:
+              only:
+                - develop
       - build:
-          name: Install dependencies
+          name: Build Image
+          requires:
+            - Install Dependencies
+          filters:
+            branches:
+              only:
+                - develop
+      - publish:
+          name: Push Image
+          requires:
+            - Build Image
           filters:
             branches:
               only:
