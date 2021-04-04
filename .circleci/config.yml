@@ -64,14 +64,14 @@ jobs:
             docker load -i image.tar
             docker images
             short_git=$(echo <<pipeline.git.revision>> | cut -c -7)
-            echo -e "\nTagging image ${GITHUB_REGISTRY}/${IMAGE_NAME} with TAG: ${TAG}-$short_git"
-            docker tag  ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest ${GITHUB_REGISTRY}/${IMAGE_NAME}:${TAG}-$short_git
+            echo -e "\nTagging image ${GITHUB_REGISTRY}/${IMAGE_NAME} with TAG: V1.0.${TAG}-$short_git"
+            docker tag  ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest ${GITHUB_REGISTRY}/${IMAGE_NAME}:V$1.0.{TAG}-$short_git
       - run:
           name: Docker Push
           command: |
             short_git=$(echo <<pipeline.git.revision>> | cut -c -7)
-            echo -e "\nPushing image $IMAGE_NAME with TAG: ${TAG}-$short_git"
-            docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}:${TAG}-$short_git
+            echo -e "\nPushing image $IMAGE_NAME with TAG: V1.0.${TAG}-$short_git"
+            docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}:V1.0.${TAG}-$short_git
             echo -e "\nPushing image $IMAGE_NAME with latest tag"
             docker push ${GITHUB_REGISTRY}/${IMAGE_NAME}
 workflows:
@@ -91,6 +91,7 @@ workflows:
             branches:
               only:
                 - develop
+                - main
       - publish:
           name: Push Image
           requires:
@@ -99,3 +100,4 @@ workflows:
             branches:
               only:
                 - develop
+                - main
