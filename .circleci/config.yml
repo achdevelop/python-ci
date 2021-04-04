@@ -82,6 +82,7 @@ workflows:
             branches:
               only:
                 - develop
+                - main
       - build:
           name: Build Image
           requires:
