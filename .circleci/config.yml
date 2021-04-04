@@ -6,8 +6,6 @@ executors:
       GITHUB_REGISTRY: docker.pkg.github.com/achgeek
       REGISTRY: https://docker.pkg.github.com
       TAG: <<pipeline.number>>
-      SHORT_GIT_HASH: $(echo <<pipeline.git.revision>> | cut -c -7)
-      NEW_TAG: V1.0.<<pipeline.number>>-${SHORT_GIT_HASH}
     docker:
       - image: circleci/python:3.6.4
 jobs:
@@ -66,7 +64,7 @@ jobs:
             docker images
             short_git=$(echo <<pipeline.git.revision>> | cut -c -7)
             echo -e "\nTagging image ${GITHUB_REGISTRY}/${IMAGE_NAME} with TAG: V1.0.${TAG}-$short_git"
-            docker tag  ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest ${GITHUB_REGISTRY}/${IMAGE_NAME}:V$1.0.${TAG}-$short_git
+            docker tag  ${GITHUB_REGISTRY}/${IMAGE_NAME}:latest ${GITHUB_REGISTRY}/${IMAGE_NAME}:V1.0.${TAG}-$short_git
       - run:
           name: Docker Push
           command: |
